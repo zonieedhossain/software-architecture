@@ -52,6 +52,9 @@ The generic web crawler system standardizes data collection, reduces maintenance
 - **NoSQL Database (e.g., MongoDB):** Store web content, images, or JSON documents for rapid scaling.
   - [MongoDB Atlas on Google Cloud](https://www.mongodb.com/atlas/google-cloud)
 
+## FlowChart for Web Crawler System
+![Flowchart](**https://github.com/zonieedhossain/software-architecture/blob/main/graphical-flowchart-crawler-design.png**, "Basic FlowChart")
+
 ## Why We Are Using This Solution
 
 - **Efficient Data Collection:** Standardizing the collection process ensures consistent, reliable data acquisition across multiple sources.
@@ -59,65 +62,233 @@ The generic web crawler system standardizes data collection, reduces maintenance
 - **Scalability:** The system is designed to be flexible and scalable for current and future needs.
 - **Security:** Implementing cloud-based security measures helps safeguard collected data.
 
-# System Architecture
-
-## Background and Motivation
-
-Modern data collection frameworks struggle to efficiently handle the vast amounts of diverse data available from the web. This leads to:
-
-- **Scalability Challenges:** Difficulty in scaling individual crawlers to accommodate increasing data volumes and website additions.
-- **High Maintenance Overhead:** Managing numerous crawlers with different configurations becomes complex and time-consuming.
-- **Limited Data Coverage:** Inconsistent crawling strategies might miss valuable data sources or fail to adapt to evolving website structures.
-
-The Generic Web Crawler System aims to address these challenges by offering a standardized, scalable, and extensible solution for web data collection.
-
-## Implementation Details
-
+# Implementation Details Using Golang
 The system leverages Google Cloud Platform (GCP) for a distributed and highly available architecture. Here's a breakdown of the data flow and component responsibilities:
 
 ### Development
-- **Language & Tools:** Utilize Python with libraries such as Scrapy or BeautifulSoup to develop a reusable crawler script.
+- **Language & Tools:** 
+  - **Golang:** Leverage Golang's concurrency features and efficiency for building a scalable web crawler. (https://go.dev/).
+  - **Libraries:** Utilize libraries like:
+    - **Colly** for scraping functionalities (https://github.com/AlephAlpha/golly).
+    - **goquery** for HTML parsing (https://github.com/PuerkitoBio/goquery).
+    - **gorilla/mux** (optional) for routing if exposing RESTful APIs (https://github.com/gorilla/mux).
+    
 - **Features:**
-  - **Politeness:** Adherence to `robots.txt` to prevent overloading websites.
-  - **Error Handling:** Robust error management to handle crawl interruptions gracefully.
-  - **Middleware:** Incorporate middleware for tasks like authentication and data extraction.
+  - **Politeness:** 
+    - Respect robots.txt protocols by using libraries like go-robots-txt (https://github.com/temoto/robotstxt) or implementing custom parsing logic.
+  - **Error Handling:** 
+    - Robust error handling to manage timeouts, HTTP errors, and network issues, using Go's built-in error interface and custom error types for granular control.
+  - **Middleware:** 
+    - **Authentication:** Utilize libraries like go-oauth2 (https://github.com/golang/oauth2) or oauth1 (https://github.com/topics/oauth1) for authentication with different providers.
+    - **Data Extraction:** Design custom middleware to extract specific data from web pages based on your scraping requirements.
+    - **Rate Limiting:** Implement rate limiting using libraries like go-rate (https://github.com/golang/time/blob/master/rate/rate.go) to regulate website requests and avoid overloading servers.
 
-### Deployment
-- **Containerization:** Use Docker containers to encapsulate the crawler code and dependencies.
-  - **Isolated Environments:** Ensure that each container operates independently to eliminate conflicts.
-  - **Deployment Ease:** Enable consistent deployments across various environments with minimal configuration changes.
+### Example Code Snippet:
+Here is a basic example of how you might set up a web crawler using Golang with the Colly library:
+```go
+package main
 
-### Management
-- **Kubernetes Engine:** Employ Kubernetes to manage the lifecycle and scalability of the crawler containers.
-  - **Scalability:** Easily add crawlers for new sites and scale horizontally during peak times.
+import (
+  "errors"
+  "fmt"
+  "log"
 
+  "github.com/PuerkitoBio/go-query" // Import goquery
+  "github.com/gocolly/colly"
+  "github.com/robinton/go-robots-txt" // Import go-robots-txt
+)
+
+func main() {
+  c := colly.NewCollector(
+    colly.AllowedDomains("example.com"),
+  )
+
+  // Respect robots.txt
+  robotsTxt, err := robots.Parse("https://example.com/robots.txt")
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  c.OnRequest(func(r *colly.Request) {
+    if !robotsTxt.CanFetch(r.URL.String(), "*") {
+      r.Abort() // Respect robots.txt disallow rules
+      return
+    }
+    log.Println("Visiting", r.URL.String())
+  })
+
+  c.OnError(func(err error) {
+    // Handle errors (timeouts, HTTP errors, etc.)
+    fmt.Println("Error:", err)
+  })
+
+  c.OnHTML("a[href]", func(e *colly.HTMLElement) {
+    link := e.Attr("href")
+    log.Println("Link found:", link)
+    e.Request.Visit(link)
+  })
+
+  c.OnHTML("h1", func(e *colly.HTMLElement) {
+    title := e.Text
+    log.Println("Title:", title)
+  }) // Example data extraction (modify selectors as needed)
+
+  c.Visit("https://example.com")
+}
+
+```
 ## Cloud Functions (Serverless)
-- **Functionality:** Real-time processing of raw data using event-driven cloud functions.
+- **Functionality:** 
+  - Deploy serverless functions using GCP's Cloud Functions written in Go, which will respond to events from Pub/Sub to process data in real-time.
 - **Tasks Include:**
-  - **Data Transformation:** Convert raw data into usable formats.
-  - **Data Normalization:** Standardize data formats across different sources.
-  - **Event Triggers:** Notify system administrators of key events like crawl completions or errors through Pub/Sub.
+  - **Data Transformation:** Utilize Golang's standard library and libraries like encoding/json or xml (https://pkg.go.dev/encoding/json) to parse and transform raw data into structured formats suitable for storage and analysis.
+  - **Data Normalization:** Standardize and validate data formats (e.g., date formats, units) to ensure consistency within your data pipeline. You can define data validation rules within Cloud Functions.
+  - **Event Triggers:** Golang's concurrency model facilitates efficient handling of event triggers from Pub/Sub, enabling high-throughput message processing. Refer to the Cloud Functions documentation for event triggers (https://cloud.google.com/functions/docs/calling).
+### Example Code Snippet:
+```go
+package main
 
+import (
+    "context"
+    "encoding/json"
+    "fmt"
+    "log"
+
+    "cloud.google.com/go/functions/v1"
+    "cloud.google.com/go/sql/driver"
+)
+
+type CrawledURL struct {
+    URL string `json:"url"`
+}
+
+func main() {
+    ctx := context.Background()
+
+    // (Connect to Cloud SQL database)
+    db, err := driver.Open("mysql", "user:password@tcp(your-project-id.cloudsql.com:3306)/your-database")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    // (Function triggered by Pub/Sub message)
+    f := func(ctx context.Context, message *functions.CloudEvent) error {
+        var url CrawledURL
+        err := json.Unmarshal(message.Data, &url)
+        if err != nil {
+            log.Println("Error unmarshalling message:", err)
+            return nil // Handle errors appropriately
+        }
+
+        // Insert URL into database
+        stmt, err := db.PrepareContext(ctx, "INSERT INTO urls (url) VALUES (?)")
+        if err != nil {
+            log.Println("Error preparing statement:", err)
+            return nil // Handle errors appropriately
+        }
+        _, err = stmt.ExecContext(ctx, url.URL)
+        if err != nil {
+            log.Println("Error inserting URL:", err)
+            return nil // Handle errors appropriately
+        }
+        fmt.Println("Inserted URL:", url.URL)
+        return nil
+    }
+
+    // Register Cloud Function
+    log.Fatal(functions.Register(ctx, f))
+}
+```
 ## Data Storage (Hybrid Approach)
-- **Structured Data Storage:** Use MySQL Database (Cloud SQL) for storing structured data such as URLs and page analytics.
-- **Unstructured Data Storage:** Utilize MongoDB Atlas on GCP to handle unstructured data like web content and images.
+### Structured Data Storage Cloud SQL (MySQL): 
+  - **Functionality:** Ideal for storing well-defined, schema-based data commonly extracted during web crawling. This includes:
+    - URLs (seed URLs, crawled URLs, filtered URLs).
+    - Crawl statuses (success, failure, retry count).
+    - Analytics data (extracted product details, website statistics).
+- **Benefits:** 
+  - Efficient querying and retrieval using SQL.
+  - Relational capabilities for linking related data entries.
+  - Scalability to handle large volumes of structured data.
+- **Golang Integration:**
+  - Utilize the database/sql package in Golang to connect, interact with, and manage data within your Cloud SQL instance. Refer to the official documentation for detailed instructions: https://pkg.go.dev/database/sql.
+- **Documentation:**
+  - Golang database/sql package: https://pkg.go.dev/database/sql.
 
+### Unstructured Data Storage MongoDB Atlas on GCP:
+- **Functionality:** Suitable for storing variable-length, non-rigid data structures like:
+  - Web page content (HTML snippets, text extracts).
+  - Images (product images, logos).
+  - JSON or XML data (if encountered during crawling).
+- **Benefits:**
+  - Flexible schema for accommodating diverse data types.
+  - Scalability to handle large volumes of unstructured data.
+- **Golang Integration:**
+  - Use the mongo-go-driver package to interact with your MongoDB Atlas instance in Golang. Refer to the driver's documentation for installation and usage guides: https://github.com/mongodb/mongo-go-driver.
+- **Documentation:**
+  - mongo-go-driver: https://github.com/mongodb/mongo-go-driver.
+  
 ## Data Orchestration (Pub/Sub)
-- **Message Queuing:** Ensure smooth data flow and system component decoupling, allowing for independent scaling and efficient resource management.
+- **Functionality:** Implement Google Cloud Pub/Sub (Pub/Sub) as a message queuing system to manage the flow of data between different components of your web crawler architecture.
+- **Benefits:**
+  - **Decoupling:** Pub/Sub decouples components, allowing them to operate independently and scale based on their needs.
+  - **Scalability:** Pub/Sub can handle high volumes of messages, ensuring your system can handle increasing crawl demands.
+  - **Fault Tolerance:** Messages are persisted in Pub/Sub topics, ensuring delivery even if a subscriber is temporarily unavailable.
+- **Components:**
+  - **Topics:** Create topics in Pub/Sub to represent different categories of messages (e.g., "crawled_urls", "extracted_data").
+  - **Subscriptions:** Create subscriptions that bind your Cloud Functions and other services to specific topics. Subscribers receive messages published to their corresponding topics.
+- **Golang Client Library:** 
+  - Publish: Publish messages (e.g., URLs to be crawled, extracted data) from your Golang web crawler to relevant Pub/Sub topics.
+  - Subscribe: Implement Cloud Functions or other services as subscribers that listen for messages on specific topics.
+  - Process: Cloud Functions will receive messages triggered by Pub/Sub and perform necessary data processing tasks (e.g., transformation, normalization) before storing data.
 
+### Example Code Snippet:
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+
+    "cloud.google.com/go/pubsub/v1"
+)
+
+func main() {
+    ctx := context.Background()
+    projectID := "your-project-id"
+
+    // Create a Pub/Sub client
+    client, err := pubsub.NewClient(ctx, projectID)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Define a topic and subscription
+    topic := client.Topic("crawled_urls")
+    subscription := client.Subscription("url_processor")
+
+    // Publish a message to the topic
+    data := []byte("https://example.com")
+    result := topic.Publish(ctx, data)
+    msgID, err := result.Get(ctx)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Published message: %d\n", msgID)
+
+    // (In a separate Cloud Function)
+    // Subscribe to the topic and process messages
+    // ...
+}
+```
 ## Data Analysis and Retrieval (BigQuery)
-- **Analytics:** Leverage BigQuery for complex queries and deep analysis of stored data to generate insights and reports.
-
-## Responsibilities of Major Components
-- **Web Crawler:** Manages the downloading, parsing, and initial data handling.
-- **Cloud Functions:** Processes and refines data, manages event-based tasks.
-- **Database Management:** Handles data storage and retrieval operations.
-- **Data Analysis:** Performs data analysis and generates actionable reports.
+- **Analytics:** Use BigQuery for performing heavy-duty analytics on the stored data. Leverage Golang's BigQuery client library to run queries and retrieve results for reporting or further analysis.
 
 ## Load Balancing
-- **HTTP(S) Load Balancing:** Implement load balancing to distribute requests efficiently across multiple crawler containers.
-  - **High Availability:** Ensure high availability by redirecting requests to healthy containers if one becomes unavailable, minimizing downtime.
-  - **Efficient Resource Utilization:** Achieve an even distribution of requests across containers to prevent overload and maximize resource utilization.
+- **HTTP(S) Load Balancing:** Implement load balancing within GCP to distribute incoming requests across multiple instances of the web crawler, ensuring optimal resource utilization and redundancy.
+- **High Availability:** Ensure high availability by redirecting requests to healthy containers if one becomes unavailable, minimizing downtime.
+- **Efficient Resource Utilization:** Achieve an even distribution of requests across containers to prevent overload and maximize resource utilization.
 
 # Metrics
 
