@@ -128,16 +128,16 @@ The following metrics will be used to measure the success of the Generic Web Cra
 ### Reduced Operational Costs
 - **Cost Reduction:** Track the cost reduction achieved through this system compared to managing individual crawlers for each website. This could involve monitoring server resource utilization, personnel hours saved on maintenance, and any potential licensing cost savings.
 ```python
-Cost Reduction (%) = ((Cost Before - Cost After) / Cost Before) * 100
+Cost_Reduction (%) = ((Cost_Before - Cost_After) / Cost_Before) * 100
 ```
 ### Increased Data Collection Efficiency
 - **Data Volume:** Monitor the amount of data collected over time to evaluate if the system is gathering more data compared to previous methods.
 ```python
-Crawl Time = (End Time - Start Time) / Number of URLs Crawled
+Crawl_Time = (End_Time - Start_Time) / Number_of_URLs_Crawled
 ```
 - **Crawl Time:** Measure the average time taken to crawl a specific set of websites. A decrease in crawl time indicates improved efficiency.
 ```python
-Average Crawl Time (seconds) = Total Time to Crawl / Total Pages Crawled
+Average_Crawl_Time (seconds) = Total_Time_to_Crawl / Total_Pages_Crawled
 ```
 - **Data Freshness:** Track how frequently new data is collected to ensure the system stays up-to-date.
 
@@ -154,12 +154,12 @@ To detect performance regressions, the system will monitor the following:
 ### System Uptime
 - **Uptime Percentage:** Monitor system uptime to ensure consistent data collection.
 ```python
-Uptime Percentage (%) = (Total Operational Time / Total Time Observed) * 100
+Uptime_Percentage (%) = (Total_Operational_Time / Total_Time_Observed) * 100
 ```
 ### Error Rate
 - **Crawl Error Frequency:** Track the frequency of crawl errors encountered. An increase in errors might suggest website changes or issues with the crawling logic.
 ```python
-Crawl Error Frequency = Number of Errors / Number of Crawl Attempts
+Crawl_Error_Frequency = Number_of_Errors / Number_of_Crawl_Attempts
 ```
 ### Data Completeness
 - **Completeness Check:** Verify that all desired data elements are being extracted from web pages. Any missing data could indicate problems with the extraction process.
