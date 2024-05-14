@@ -1,4 +1,4 @@
-# Basic Software Design Document for Generic Web Crawler System (Public Version)
+# Software Design Document for Generic Web Crawler System (Public Version)
 
 ## Team
 
@@ -52,8 +52,8 @@ The generic web crawler system standardizes data collection, reduces maintenance
 - **NoSQL Database (e.g., MongoDB):** Store web content, images, or JSON documents for rapid scaling.
   - [MongoDB Atlas on Google Cloud](https://www.mongodb.com/atlas/google-cloud)
 
-## Basic FlowChart for Web Crawler System
-![Flowchart](https://github.com/zonieedhossain/software-architecture/blob/main/graphical-basic-flowchart-crawler-design.png)
+## FlowChart for Web Crawler System
+![Flowchart](https://github.com/zonieedhossain/software-architecture/blob/main/graphical-flowchart-crawler-design.png)
 
 ## Why We Are Using This Solution
 
