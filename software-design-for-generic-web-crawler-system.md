@@ -53,7 +53,7 @@ The generic web crawler system standardizes data collection, reduces maintenance
   - [MongoDB Atlas on Google Cloud](https://www.mongodb.com/atlas/google-cloud)
 
 ## Basic FlowChart for Web Crawler System
-![Flowchart](https://github.com/zonieedhossain/software-architecture/blob/main/graphical-flowchart-crawler-design.png)
+![Flowchart](https://github.com/zonieedhossain/software-architecture/blob/main/graphical-basic-flowchart-crawler-design.png)
 
 ## Why We Are Using This Solution
 
