@@ -52,8 +52,8 @@ The generic web crawler system standardizes data collection, reduces maintenance
 - **NoSQL Database (e.g., MongoDB):** Store web content, images, or JSON documents for rapid scaling.
   - [MongoDB Atlas on Google Cloud](https://www.mongodb.com/atlas/google-cloud)
 
-## FlowChart for Web Crawler System
-![Flowchart](**https://github.com/zonieedhossain/software-architecture/blob/main/graphical-flowchart-crawler-design.png**, "Basic FlowChart")
+## Basic FlowChart for Web Crawler System
+![Flowchart](https://github.com/zonieedhossain/software-architecture/blob/main/graphical-flowchart-crawler-design.png)
 
 ## Why We Are Using This Solution
 
