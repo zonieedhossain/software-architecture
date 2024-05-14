@@ -1,5 +1,5 @@
-# Basic Cloud Architecture Design for Web Crawler (Public Version)
-![CloudDesignDiagram](https://github.com/zonieedhossain/software-architecture/blob/main/graphical-basic-cloud-design-diagram.png)
+# Cloud Architecture Design for Web Crawler (Public Version)
+![CloudDesignDiagram](https://github.com/zonieedhossain/software-architecture/blob/main/graphical-cloud-design-diagram.png)
 ## 1. Infrastructure Setup
 
 ### Kubernetes Cluster on GCP (GKE)
