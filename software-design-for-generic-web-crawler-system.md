@@ -1,4 +1,4 @@
-# Software Design Document for Generic Web Crawler System (Public Version)
+# Basic Software Design Document for Generic Web Crawler System (Public Version)
 
 ## Team
 
