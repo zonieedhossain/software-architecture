@@ -1,4 +1,6 @@
 # Cloud Architecture Design for Web Crawler (Public Version)
+
+## Cloud Design Diagram:
 ![CloudDesignDiagram](https://github.com/zonieedhossain/software-architecture/blob/main/graphical-cloud-design-diagram.png)
 ## 1. Infrastructure Setup
 
