@@ -17,7 +17,7 @@ The Design Document provides a comprehensive analysis of the software architectu
 
 The Cloud Design Diagram visually represents the architecture of the Generic Web Crawler System. It shows how components like Compute Engine, Kubernetes Engine, and BigQuery are orchestrated to work together within the Google Cloud Platform environment.
 
-**[View the Crawling System Cloud Design Diagram]([link-to-your-cloud-design-diagram](https://github.com/zonieedhossain/software-architecture/blob/main/cloud-infrastructure-design-daigram-for-web-crawler.md))**
+**[View the Crawling System Cloud Design Diagram](https://github.com/zonieedhossain/software-architecture/blob/main/cloud-infrastructure-design-daigram-for-web-crawler.md)**
 
 ### Download All Documents
 
